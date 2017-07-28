@@ -19,7 +19,7 @@
  *
  ****************************************************************************/
 
-package org.rockbox.monitors;
+package com.gaana.monitors;
 
 import java.util.Timer;
 import java.util.TimerTask;

@@ -19,9 +19,9 @@
  *
  ****************************************************************************/
 
-package org.rockbox.widgets;
+package com.gaana.widgets;
 
-public class RockboxWidgetProvider3x3 extends RockboxWidgetProvider
+public class RockboxWidgetProvider2x2 extends RockboxWidgetProvider
 {
-
 }
+

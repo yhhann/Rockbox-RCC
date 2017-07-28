@@ -8,7 +8,7 @@
         <CheckBoxPreference android:key="volume_lock"
             android:summary="@string/pre_rockbox_volume_lock_summary" android:title="@string/pre_rockbox_volume_lock_title">
         </CheckBoxPreference>
-        <org.rockbox.preference.RockboxVolumeLockSeekBar  android:key="volume_lock_value" android:dependency="volume_lock" android:title="@string/pre_rockbox_volume_lock_value_title"
+        <com.gaana.preference.RockboxVolumeLockSeekBar  android:key="volume_lock_value" android:dependency="volume_lock" android:title="@string/pre_rockbox_volume_lock_value_title"
    android:persistent="true"  />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pre_rockbox_power_title">
@@ -31,12 +31,20 @@
             android:summary="@string/pre_rockbox_show_titlebar_summary" android:title="@string/pre_rockbox_show_titlebar" android:defaultValue="true"> 
         </CheckBoxPreference>
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pre_rockbox_scale_settings">
+        <CheckBoxPreference android:key="scale_mode"
+            android:summary="@string/pre_rockbox_scale_mode_summary" android:title="@string/pre_rockbox_scale_mode" android:defaultValue="true"> 
+        </CheckBoxPreference>
+        <CheckBoxPreference android:key="keep_scale_aspect"
+            android:summary="@string/pre_rockbox_keep_scale_aspect_summary" android:title="@string/pre_rockbox_keep_scale_aspect" android:defaultValue="true"> 
+        </CheckBoxPreference>
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/pre_rockbox_config">
-        <org.rockbox.preference.RockboxBackupDialog android:title="@string/pre_rockbox_backup" android:summary="@string/pre_rockbox_backup_summary" android:dialogMessage="@string/pre_rockbox_backup_dialogMessage" android:dialogTitle="@string/pre_rockbox_backup_dialogTitle" android:positiveButtonText="@string/pre_rockbox_backup_backup" android:negativeButtonText="@string/pre_rockbox_backup_restore" />
+        <com.gaana.preference.RockboxBackupDialog android:title="@string/pre_rockbox_backup" android:summary="@string/pre_rockbox_backup_summary" android:dialogMessage="@string/pre_rockbox_backup_dialogMessage" android:dialogTitle="@string/pre_rockbox_backup_dialogTitle" android:positiveButtonText="@string/pre_rockbox_backup_backup" android:negativeButtonText="@string/pre_rockbox_backup_restore" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pre_rockbox_about_title">
         <PreferenceScreen android:title="@string/pre_rockbox_feedback_title" >
-           <intent android:action="android.intent.action.MAIN" android:targetPackage="org.rockbox"
+           <intent android:action="android.intent.action.MAIN" android:targetPackage="com.gaana"
 android:targetClass="com.umeng.fb.ui.SendFeedback" />
         </PreferenceScreen>
         <PreferenceScreen android:title="@string/pre_rockbox_rcc_title" android:summary="@string/pre_rockbox_rcc_summary">

@@ -19,7 +19,7 @@
  *
  ****************************************************************************/
 
-package org.rockbox.Helper;
+package com.gaana.Helper;
 
 import android.util.Log;
 

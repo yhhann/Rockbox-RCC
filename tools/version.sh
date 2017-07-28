@@ -87,7 +87,7 @@ if [ -z $VERSION ]; then
 
 manufacturer="RCC"
 gitver=`git rev-parse --verify --short HEAD`
-VERSION="$manufacturer $gitver-`date -u +%y%m%d`$mod (Community Version)"
+VERSION="$manufacturer $gitver-`date -u +%y%m%d`$mod (HIFI Version)"
 fi
 echo $VERSION
 

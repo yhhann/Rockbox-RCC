@@ -19,13 +19,13 @@
  *
  ****************************************************************************/
 
-package org.rockbox.Helper;
+package com.gaana.Helper;
 
 import java.lang.reflect.Method;
 
-import org.rockbox.RockboxApp;
-import org.rockbox.RockboxFramebuffer;
-import org.rockbox.RockboxService;
+import com.gaana.RockboxApp;
+import com.gaana.RockboxFramebuffer;
+import com.gaana.RockboxService;
 
 import com.android.internal.telephony.ITelephony;
 

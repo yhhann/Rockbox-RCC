@@ -19,7 +19,7 @@
  *
  ****************************************************************************/
 
-package org.rockbox.monitors;
+package com.gaana.monitors;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

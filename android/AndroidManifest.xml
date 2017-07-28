@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-	package="org.rockbox"
+	package="com.gaana"
 	android:versionCode="2"
 	android:versionName="1.0"
 	android:installLocation="auto">
@@ -29,7 +29,7 @@
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<action android:name="android.intent.action.MEDIA_BUTTON" />
-				<action android:name="org.rockbox.ResendTrackUpdateInfo" />
+				<action android:name="com.gaana.ResendTrackUpdateInfo" />
 			</intent-filter>
     </service>
 
@@ -46,9 +46,9 @@
               android:label="@string/appwidget_label_4x1">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-        <action android:name="org.rockbox.TrackUpdateInfo" />
-        <action android:name="org.rockbox.TrackFinish" />
-        <action android:name="org.rockbox.UpdateState" />
+        <action android:name="com.gaana.TrackUpdateInfo" />
+        <action android:name="com.gaana.TrackFinish" />
+        <action android:name="com.gaana.UpdateState" />
       </intent-filter>
       <meta-data android:name="android.appwidget.provider"
                  android:resource="@xml/appwidget_provider_4x1" />
@@ -58,9 +58,9 @@
               android:label="@string/appwidget_label_2x2">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-        <action android:name="org.rockbox.TrackUpdateInfo" />
-        <action android:name="org.rockbox.TrackFinish" />
-        <action android:name="org.rockbox.UpdateState" />
+        <action android:name="com.gaana.TrackUpdateInfo" />
+        <action android:name="com.gaana.TrackFinish" />
+        <action android:name="com.gaana.UpdateState" />
       </intent-filter>
       <meta-data android:name="android.appwidget.provider"
                  android:resource="@xml/appwidget_provider_2x2" />
@@ -70,9 +70,9 @@
               android:label="@string/appwidget_label_3x3">
       <intent-filter>
         <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-        <action android:name="org.rockbox.TrackUpdateInfo" />
-        <action android:name="org.rockbox.TrackFinish" />
-        <action android:name="org.rockbox.UpdateState" />
+        <action android:name="com.gaana.TrackUpdateInfo" />
+        <action android:name="com.gaana.TrackFinish" />
+        <action android:name="com.gaana.UpdateState" />
       </intent-filter>
       <meta-data android:name="android.appwidget.provider"
                  android:resource="@xml/appwidget_provider_3x3" />

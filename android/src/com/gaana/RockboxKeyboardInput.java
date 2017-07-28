@@ -19,7 +19,7 @@
  *
  ****************************************************************************/
 
-package org.rockbox;
+package com.gaana;
 
 
 import android.app.Activity;

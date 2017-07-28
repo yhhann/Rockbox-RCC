@@ -28,8 +28,10 @@
 #include "debug.h"
 #include "pcm.h"
 #include "pcm-internal.h"
+#include "button.h"
 
 extern JNIEnv *env_ptr;
+extern void jni_call(void(*fn)(void));
 
 /* infos about our pcm chunks */
 static const void *pcm_data_start;
@@ -45,6 +47,7 @@ static jmethodID write_method;
 static jclass    RockboxPCM_class;
 static jobject   RockboxPCM_instance;
 
+static int native_volume = 0;
 
 /*
  * mutex lock/unlock wrappers neatness' sake
@@ -69,7 +72,7 @@ static inline void unlock_audio(void)
  * it is called from the PositionMarker callback of AudioTrack
  **/
 JNIEXPORT jint JNICALL
-Java_org_rockbox_RockboxPCM_nativeWrite(JNIEnv *env, jobject this,
+Java_com_gaana_RockboxPCM_nativeWrite(JNIEnv *env, jobject this,
                                         jbyteArray temp_array, jint max_size)
 {
     bool new_buffer = false;
@@ -153,27 +156,54 @@ void pcm_play_dma_start(const void *addr, size_t size)
 {
     pcm_data_start = addr;
     pcm_data_size = size;
-    
+
     pcm_play_dma_pause(false);
 }
 
-void pcm_play_dma_stop(void)
+static void pcm_play_dma_stop_(void)
 {
     /* NOTE: due to how pcm_play_dma_complete_callback() works, this is
      * possibly called from nativeWrite(), i.e. another (host) thread
      * => need to discover the appropriate JNIEnv* */
     JNIEnv* env = getJavaEnvironment();
+    jclass pcm_class =  (*env)->GetObjectClass(env, RockboxPCM_instance);
+    if (pcm_class == NULL)
+        return;
     (*env)->CallVoidMethod(env,
                            RockboxPCM_instance,
                            stop_method);
+    (*env)->DeleteLocalRef(env, pcm_class);
 }
 
-void pcm_play_dma_pause(bool pause)
+void pcm_play_dma_stop(void)
+{
+    jni_call(pcm_play_dma_stop_);
+}
+
+static void pcm_play_dma_pause_(bool pause)
 {
     (*env_ptr)->CallVoidMethod(env_ptr,
                                RockboxPCM_instance,
                                play_pause_method,
                                (int)pause);
+}
+
+static void pcm_play_dma_pause_true(void)
+{
+    pcm_play_dma_pause_(true);
+}
+
+static void pcm_play_dma_pause_false(void)
+{
+    pcm_play_dma_pause_(false);
+}
+
+void pcm_play_dma_pause(bool pause)
+{
+    if (pause)
+        jni_call(pcm_play_dma_pause_true);
+    else
+        jni_call(pcm_play_dma_pause_false);
 }
 
 size_t pcm_get_bytes_waiting(void)
@@ -188,7 +218,7 @@ const void * pcm_play_dma_get_peak_buffer(int *count)
     return (void *)((addr + 3) & ~3);
 }
 
-void pcm_play_dma_init(void)
+static void pcm_play_dma_init_(void)
 {
     /* in order to have background music playing after leaving the activity,
      * we need to allocate the PCM object from the Rockbox thread (the Activity
@@ -200,29 +230,54 @@ void pcm_play_dma_init(void)
      **/
     JNIEnv e = *env_ptr;
     /* get the class and its constructor */
-    RockboxPCM_class = e->FindClass(env_ptr, "org/rockbox/RockboxPCM");
+    jclass cls = e->FindClass(env_ptr, "com/gaana/RockboxPCM");
+    RockboxPCM_class = e->NewGlobalRef(env_ptr, cls);
+
+    //RockboxPCM_class = e->FindClass(env_ptr, "com/gaana/RockboxPCM");
     jmethodID constructor = e->GetMethodID(env_ptr, RockboxPCM_class, "<init>", "()V");
     /* instance = new RockboxPCM() */
-    RockboxPCM_instance = e->NewObject(env_ptr, RockboxPCM_class, constructor);
+    jobject local_RockboxPCM_instance = e->NewObject(env_ptr, RockboxPCM_class, constructor);
+    RockboxPCM_instance = e->NewGlobalRef(env_ptr,local_RockboxPCM_instance);
     /* cache needed methods */
     play_pause_method = e->GetMethodID(env_ptr, RockboxPCM_class, "play_pause", "(Z)V");
-    set_volume_method = e->GetMethodID(env_ptr, RockboxPCM_class, "set_volume", "(I)V");
+    set_volume_method = e->GetMethodID(env_ptr, RockboxPCM_class, "set_volume", "()V");
     stop_method       = e->GetMethodID(env_ptr, RockboxPCM_class, "stop", "()V");
     write_method      = e->GetMethodID(env_ptr, RockboxPCM_class, "write", "([BII)I");
+
+    while(RockboxPCM_class == NULL);
+}
+
+void pcm_play_dma_init()
+{
+    jni_call(pcm_play_dma_init_);
 }
 
 void pcm_play_dma_postinit(void)
 {
 }
 
+JNIEXPORT jint JNICALL
+Java_com_gaana_RockboxPCM_RockboxNativeVolume(JNIEnv *env, jobject this)
+{
+    (void)env;
+    (void)this;
+    return native_volume;
+}
+
+static void pcm_set_mixer_volume_(void)
+{
+    (*env_ptr)->CallVoidMethod(env_ptr, RockboxPCM_instance, set_volume_method);
+}
+
 void pcm_set_mixer_volume(int volume)
 {
-    (*env_ptr)->CallVoidMethod(env_ptr, RockboxPCM_instance, set_volume_method, volume);
+    native_volume = volume;
+    jni_call(pcm_set_mixer_volume_);
 }
 
 /*
  * release audio resources */
-void pcm_shutdown(void)
+static void pcm_shutdown_(void)
 {
     JNIEnv e = *env_ptr;
     jmethodID release = e->GetMethodID(env_ptr, RockboxPCM_class, "release", "()V");
@@ -230,8 +285,13 @@ void pcm_shutdown(void)
     pthread_mutex_destroy(&audio_lock_mutex);
 }
 
+void pcm_shutdown(void)
+{
+    jni_call(pcm_shutdown_);
+}
+
 JNIEXPORT void JNICALL
-Java_org_rockbox_RockboxPCM_postVolumeChangedEvent(JNIEnv *env,
+Java_com_gaana_RockboxPCM_postVolumeChangedEvent(JNIEnv *env,
                                                    jobject this,
                                                    jint volume)
 {

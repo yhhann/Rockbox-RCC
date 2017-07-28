@@ -19,7 +19,7 @@
  *
  ****************************************************************************/
 
-package org.rockbox;
+package com.gaana;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -29,9 +29,9 @@ import java.io.OutputStreamWriter;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import org.rockbox.Helper.Logger;
-import org.rockbox.Helper.MediaButtonReceiver;
-import org.rockbox.Helper.RunForegroundManager;
+import com.gaana.Helper.Logger;
+import com.gaana.Helper.MediaButtonReceiver;
+import com.gaana.Helper.RunForegroundManager;
 import android.app.Activity;
 import android.app.Service;
 import android.content.Intent;
@@ -109,7 +109,7 @@ public class RockboxService extends Service
     {
         Logger.d("Start RockboxService (Intent: " + intent.getAction() + ")");
 
-        if (intent.getAction().equals("org.rockbox.ResendTrackUpdateInfo"))
+        if (intent.getAction().equals("com.gaana.ResendTrackUpdateInfo"))
         {
             if (rockbox_running)
                 mFgRunner.resendUpdateNotification();
@@ -136,16 +136,12 @@ public class RockboxService extends Service
         rockbox_running = true;
     }
 
-    public void onStart(Intent intent, int startId) {
-        doStart(intent);
-    }
-
     public int onStartCommand(Intent intent, int flags, int startId)
     {
         /* if null, then the service was most likely restarted by android
          * after getting killed for memory pressure earlier */
         if (intent == null)
-            intent = new Intent("org.rockbox.ServiceRestarted");
+            intent = new Intent("com.gaana.ServiceRestarted");
         doStart(intent);
         return START_NOT_STICKY; //感觉没必要重启
     }
@@ -158,8 +154,8 @@ public class RockboxService extends Service
             public void run()
             {
                 final int BUFFER = 8*1024;
-                String rockboxDirPath = "/data/data/org.rockbox/app_rockbox/rockbox/";
-                String rockboxCreditsPath = "/data/data/org.rockbox/app_rockbox/rockbox/rocks/viewers/";
+                String rockboxDirPath = "/data/data/com.gaana/app_rockbox/rockbox/";
+                String rockboxCreditsPath = "/data/data/com.gaana/app_rockbox/rockbox/rocks/viewers/";
                 String rockboxSdDirPath = Environment.getExternalStorageDirectory().getAbsolutePath()+"/rockbox/";
 
                 /* the following block unzips libmisc.so, which contains the files 
@@ -167,7 +163,7 @@ public class RockboxService extends Service
                  * because there's no other way to ship files and have access
                  * to them from native code
                  */
-                File libMisc = new File("/data/data/org.rockbox/lib/libmisc.so");
+                File libMisc = new File("/data/data/com.gaana/lib/libmisc.so");
                 /* use arbitrary file to determine whether extracting is needed */
                 File arbitraryFile = new File(rockboxCreditsPath, "credits.rock");
                 File rockboxInfoFile = new File(rockboxSdDirPath, "rockbox-info.txt");

@@ -19,7 +19,7 @@
  *
  ****************************************************************************/
 
-package org.rockbox.monitors;
+package com.gaana.monitors;
 
 import android.content.Context;
 import android.os.Handler;

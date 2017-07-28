@@ -64,7 +64,7 @@
 #define CODEC_SIZE 0x100000
 
 /* The number of bytes reserved for loadable plugins */
-#define PLUGIN_BUFFER_SIZE 0x80000
+#define PLUGIN_BUFFER_SIZE 0x400000
 
 #define AB_REPEAT_ENABLE
 
@@ -81,6 +81,8 @@
 #define PLATFORM_HAS_VOLUME_CHANGE
 
 #define HAVE_SW_TONE_CONTROLS 
+
+#define HAVE_SW_VOLUME_CONTROL
 
 #define HAVE_HEADPHONE_DETECTION
 

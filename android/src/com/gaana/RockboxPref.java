@@ -1,6 +1,6 @@
-package org.rockbox;
+package com.gaana;
 
-import org.rockbox.Helper.Logger;
+import com.gaana.Helper.Logger;
 
 import android.os.Bundle;  
 import android.preference.CheckBoxPreference;

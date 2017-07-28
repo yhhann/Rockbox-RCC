@@ -1,4 +1,4 @@
-#             __________               __   ___.
+ #             __________               __   ___.
 #   Open      \______   \ ____   ____ |  | _\_ |__   _______  ___
 #   Source     |       _//  _ \_/ ___\|  |/ /| __ \ /  _ \  \/  /
 #   Jukebox    |    |   (  <_> )  \___|    < | \_\ (  <_> > <  <
@@ -7,10 +7,15 @@
 # $Id$
 #
 
-PACKAGE=org.rockbox
-PACKAGE_PATH=org/rockbox
+PACKAGE=com.gaana
+PACKAGE_PATH=com/gaana
 BINLIB_DIR=$(BUILDDIR)/libs/$(ANDROID_ARCH)
 ANDROID_DIR=$(ROOTDIR)/android
+
+CUSTOMJNI_SRC=$(ROOTDIR)/firmware/target/hosted/android/jni
+CUSTOMJNI_PATH=$(ROOTDIR)/firmware/target/hosted/android/jni/power-manager.c
+CUSTOMJNIOBJS_PATH=$(BUILDDIR)/firmware/target/hosted/android/jni
+CUSTOMJNIOBJS = $(CUSTOMJNIOBJS_PATH)/power-manager.o
 
 # this is a glibc compatibility hack to provide a get_nprocs() replacement.
 # The NDK ships cpu-features.c which has a compatible function android_getCpuCount()
@@ -22,17 +27,20 @@ CLEANOBJS += $(CPUFEAT_BUILD)/cpu-features.o
 $(CPUFEAT_BUILD)/cpu-features.o: $(CPUFEAT)/cpu-features.c
 	$(SILENT)mkdir -p $(dir $@)
 	$(call PRINTS,CC $(subst $(CPUFEAT)/,,$<))$(CC) -o $@ -c $^ $(GCCOPTS) -Wno-unused
+$(CUSTOMJNIOBJS_PATH)/%.o: $(CUSTOMJNI_SRC)/%.c
+	$(SILENT)mkdir -p $(dir $@)
+	$(call PRINTS,CC $(subst $(CUSTOMJNI_SRC)/,,$<))$(CC) -o $@ -c $^ $(INCLUDES) $(GCCOPTS) -Wno-unused
 
 .SECONDEXPANSION: # $$(JAVA_OBJ) is not populated until after this
 .SECONDEXPANSION: # $$(OBJ) is not populated until after this
 .PHONY: apk classes clean dex dirs libs jar
 
 # API version
-ANDROID_PLATFORM_VERSION=19
+ANDROID_PLATFORM_VERSION=23
 ANDROID_PLATFORM=$(ANDROID_SDK_PATH)/platforms/android-$(ANDROID_PLATFORM_VERSION)
 
 # android tools
-BUILD_TOOLS_VERSION=$(notdir $(firstword $(wildcard $(ANDROID_SDK_PATH)/build-tools/$(ANDROID_PLATFORM_VERSION).*)))
+BUILD_TOOLS_VERSION=19.0.1
 AIDL=$(ANDROID_SDK_PATH)/build-tools/$(BUILD_TOOLS_VERSION)/aidl
 AAPT=$(ANDROID_SDK_PATH)/build-tools/$(BUILD_TOOLS_VERSION)/aapt
 DX=$(ANDROID_SDK_PATH)/build-tools/$(BUILD_TOOLS_VERSION)/dx
@@ -55,6 +63,7 @@ JAVA_SRC	+= $(wildcard $(ANDROID_DIR)/src/$(PACKAGE_PATH)/Helper/*.java)
 JAVA_SRC	+= $(wildcard $(ANDROID_DIR)/src/$(PACKAGE_PATH)/widgets/*.java)
 JAVA_SRC	+= $(wildcard $(ANDROID_DIR)/src/$(PACKAGE_PATH)/monitors/*.java)
 JAVA_SRC	+= $(wildcard $(ANDROID_DIR)/src/$(PACKAGE_PATH)/preference/*.java)
+JAVA_SRC	+= $(wildcard $(ANDROID_DIR)/src/$(PACKAGE_PATH)/jni/*.java)
 
 AIDL_SRC	:= $(wildcard $(ANDROID_DIR)/src)
 
@@ -84,10 +93,11 @@ RES		:= $(wildcard $(ANDROID_DIR)/res/*/*)
 
 #UMENGSDK
 UMENGSDKPATH		:= $(ROOTDIR)/android/UMENG_SDK
+UMENGSDKFILE		:= $(UMENGSDKPATH)/umeng_sdk.jar
 
 CLEANOBJS += bin gen libs data
 
-JAVAC_OPTS += -source 1.6 -target 1.6 -implicit:none -classpath $(ANDROID_PLATFORM)/android.jar:$(UMENGSDKPATH)/umeng_sdk.jar:$(UMENGSDKPATH)/annotations.jar:$(CLASSPATH)
+JAVAC_OPTS += -source 1.6 -target 1.6 -implicit:none -classpath $(ANDROID_PLATFORM)/android.jar:$(UMENGSDKFILE):$(UMENGSDKPATH)/annotations.jar:$(CLASSPATH)
 
 .PHONY:
 $(MANIFEST): $(MANIFEST_SRC) $(DIRS)
@@ -102,7 +112,7 @@ $(R_JAVA) $(AP_): $(MANIFEST) $(RES) | $(DIRS)
 	$(call PRINTS,AAPT resources.ap_)$(AAPT) package -f -m \
 		-J $(BUILDDIR)/gen -M $(MANIFEST) -S $(ANDROID_DIR)/res \
 		-I $(ANDROID_PLATFORM)/android.jar -F $(AP_) \
-		-I $(UMENGSDKPATH)/umeng_sdk.jar \
+		-I $(UMENGSDKFILE) \
 		-I $(UMENGSDKPATH)/annotations.jar #注释@override
 
 $(CLASSPATH)/$(PACKAGE_PATH)/R.class: $(R_JAVA)
@@ -116,22 +126,23 @@ $(CLASSPATH)/$(PACKAGE_PATH)/%.class: $(ANDROID_DIR)/src/$(PACKAGE_PATH)/%.java 
 $(JAR): $(JAVA_SRC) $(R_JAVA)
 	$(call PRINTS,JAVAC $(subst $(ROOTDIR)/,,$?))javac -d $(CLASSPATH) \
 		$(JAVAC_OPTS) -sourcepath $(ANDROID_DIR)/src:$(ANDROID_DIR)/gen $?
-	$(call PRINTS,JAR $(subst $(BUILDDIR)/,,$@))jar cf $(JAR) -C $(CLASSPATH) org
-#代码混淆用	$(SILENT)$(ANDROID_SDK_PATH)/tools/proguard/bin/proguard.sh -injars $(TMPJAR) -outjars $(JAR) -libraryjars /home/zhkailing/android-sdk-linux_x86/platforms/android-15/android.jar -libraryjars /home/zhkailing/rockbox/android/UMENG_SDK/umeng_sdk.jar @$(ANDROID_DIR)/proguard.cfg
+	$(call PRINTS,JAR $(subst $(BUILDDIR)/,,$@))jar cf $(JAR) -C $(CLASSPATH) com
+#代码混淆用	$(SILENT)$(ANDROID_SDK_PATH)/tools/proguard/bin/proguard.sh -injars $(TMPJAR) -outjars $(JAR) -libraryjars $(ANDROID_PLATFORM)/android.jar -libraryjars $(UMENGSDKFILE) @$(ANDROID_DIR)/proguard.cfg
 
 jar: $(JAR)
 
 $(DEX): $(JAR)
 	@echo "Checking for deleted class files" && $(foreach obj,$(JAVA_OBJ) $(R_OBJ), \
 		(test -f $(obj) || (echo "$(obj) is missing. Run 'make classes' to fix." && false)) && ) true
-	$(call PRINTS,DX $(subst $(BUILDDIR)/,,$@))$(DX) --dex --no-optimize --output=$@ $(UMENGSDKPATH)/umeng_sdk.jar $(UMENGSDKPATH)/annotations.jar $<
+	$(call PRINTS,DX $(subst $(BUILDDIR)/,,$@))$(DX) --dex --no-optimize --output=$@ $(UMENGSDKFILE) $(UMENGSDKPATH)/annotations.jar $<
 
 dex: $(DEX)
 
 classes: $(R_OBJ) $(JAVA_OBJ)
 
 
-$(BUILDDIR)/$(BINARY): $$(OBJ) $(FIRMLIB) $(VOICESPEEXLIB) $(CORE_LIBS) $(CPUFEAT_BUILD)/cpu-features.o
+$(BUILDDIR)/$(BINARY): $$(OBJ) $(FIRMLIB) $(VOICESPEEXLIB) $(CORE_LIBS) $(CPUFEAT_BUILD)/cpu-features.o \
+		$(CUSTOMJNIOBJS)
 	$(call PRINTS,LD $(BINARY))$(CC) -o $@ $^ $(LDOPTS) $(GLOBAL_LDOPTS) -Wl,-Map,$(BUILDDIR)/rockbox.map
 	$(call PRINTS,OC $(@F))$(call objcopy,$@,$@)
 
@@ -179,11 +190,11 @@ dirs: $(DIRS)
 apk: $(APK)
 	$(SILENT)mv ./rockbox.apk ./rockbox-rcc-`git rev-parse --verify --short HEAD`\
 	-$(LCD_WIDTH)x$(LCD_HEIGHT).apk
-     
+
 
 install: apk
 	$(SILENT)$(ADB) install -r rockbox-rcc-`git rev-parse --verify --short HEAD`\
 	-$(LCD_WIDTH)x$(LCD_HEIGHT).apk
 
 launch:
-	$(SILENT)echo 'am start -a android.intent.action.MAIN -n org.rockbox/.RockboxActivity; exit' | $(ADB) shell >/dev/null
+	$(SILENT)echo 'am start -a android.intent.action.MAIN -n com.gaana/.RockboxActivity; exit' | $(ADB) shell >/dev/null

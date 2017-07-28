@@ -19,12 +19,12 @@
  *
  ****************************************************************************/
 
-package org.rockbox.widgets;
+package com.gaana.widgets;
 
 import java.io.File;
-import org.rockbox.R;
-import org.rockbox.RockboxActivity;
-import org.rockbox.RockboxService;
+import com.gaana.R;
+import com.gaana.RockboxActivity;
+import com.gaana.RockboxService;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -83,9 +83,9 @@ public class RockboxWidgetProvider extends AppWidgetProvider
     public void onReceive(Context context, Intent intent)
     {
         String action = intent.getAction();
-        if (action.equals("org.rockbox.TrackUpdateInfo") ||
-            action.equals("org.rockbox.TrackFinish") ||
-            action.equals("org.rockbox.UpdateState"))
+        if (action.equals("com.gaana.TrackUpdateInfo") ||
+            action.equals("com.gaana.TrackFinish") ||
+            action.equals("com.gaana.UpdateState"))
         {
             AppWidgetManager gm = AppWidgetManager.getInstance(context);
             int[] appWidgetIds = gm.getAppWidgetIds(new ComponentName(context, this.getClass()));
@@ -159,7 +159,7 @@ public class RockboxWidgetProvider extends AppWidgetProvider
 
         if (args != null)
         {
-            if (args.getAction().equals("org.rockbox.TrackUpdateInfo"))
+            if (args.getAction().equals("com.gaana.TrackUpdateInfo"))
             {
                 CharSequence title = args.getCharSequenceExtra("title");
                 CharSequence artist = args.getCharSequenceExtra("artist");
@@ -174,14 +174,14 @@ public class RockboxWidgetProvider extends AppWidgetProvider
                 else
                     views.setImageViewResource(R.id.logo, R.drawable.rockbox);
             }
-            else if (args.getAction().equals("org.rockbox.TrackFinish"))
+            else if (args.getAction().equals("com.gaana.TrackFinish"))
             {
                 // FIXME: looks like this event is always fired earlier than
                 // the actual track change (a few seconds)
                 views.setTextViewText(R.id.infoDisplay, context.getString(R.string.appwidget_infoDisplay));
                 views.setImageViewResource(R.id.logo, R.drawable.rockbox);
             }
-            else if (args.getAction().equals("org.rockbox.UpdateState"))
+            else if (args.getAction().equals("com.gaana.UpdateState"))
             {
                 CharSequence playstate = args.getCharSequenceExtra("state");
                 if (playstate.equals("play"))

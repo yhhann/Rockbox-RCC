@@ -36,7 +36,7 @@ static struct semaphore    yesno_done;
 static bool      ret;
 
 JNIEXPORT void JNICALL
-Java_org_rockbox_RockboxYesno_put_1result(JNIEnv *env, jobject this, jboolean result)
+Java_com_gaana_RockboxYesno_put_1result(JNIEnv *env, jobject this, jboolean result)
 {
     (void)env;
     (void)this;
@@ -53,7 +53,7 @@ static void yesno_init(void)
         semaphore_init(&yesno_done, 1, 0);
         /* get the class and its constructor */
         jclass RockboxYesno_class = e->FindClass(env_ptr,
-                                                 "org/rockbox/RockboxYesno");
+                                                 "com/gaana/RockboxYesno");
         jmethodID constructor = e->GetMethodID(env_ptr,
                                                RockboxYesno_class,
                                                "<init>", "()V");

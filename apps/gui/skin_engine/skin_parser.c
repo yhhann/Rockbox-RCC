@@ -1589,7 +1589,7 @@ static int parse_touchregion(struct skin_element *element,
         else if (param->type == PERCENT)
             region->x = param->data.number * curr_vp->vp.width / 1000;
     }
-/*y*/
+/*y*/  
     param = get_param(element, ++p);
     region->y = 0;
     if (!isdefault(param))

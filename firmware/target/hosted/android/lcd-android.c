@@ -34,7 +34,7 @@ extern jobject RockboxService_instance;
 static jobject RockboxFramebuffer_instance;
 static jmethodID java_lcd_update;
 static jmethodID java_lcd_update_rect;
-
+static jmethodID java_lcd_init;
 static jclass    AndroidRect_class;
 static jmethodID AndroidRect_constructor;
 
@@ -66,9 +66,12 @@ static void connect_with_java(JNIEnv* env, jobject fb_instance)
     /* these don't change with new instances so call them now */
     dpi                  = e->CallIntMethod(env, fb_instance, get_dpi);
     scroll_threshold     = e->CallIntMethod(env, fb_instance, thresh);
-
+    java_lcd_init        = e->GetMethodID(env, fb_class,
+                                             "initialize", "(II)V");
     AndroidRect_constructor = e->GetMethodID(env, AndroidRect_class,
                                          "<init>", "(IIII)V");
+    (*env)->CallVoidMethod(env, fb_instance, java_lcd_init,
+                          (jint)LCD_WIDTH, (jint)LCD_HEIGHT);
 }
 
 /*
@@ -116,7 +119,7 @@ void lcd_update_rect(int x, int y, int width, int height)
  * Note this is considered interrupt context
  */
 JNIEXPORT void JNICALL
-Java_org_rockbox_RockboxFramebuffer_surfaceCreated(JNIEnv *env, jobject this,
+Java_com_gaana_RockboxFramebuffer_surfaceCreated(JNIEnv *env, jobject this,
                                                      jobject surfaceholder)
 {
     (void)surfaceholder;
@@ -148,7 +151,7 @@ Java_org_rockbox_RockboxFramebuffer_surfaceCreated(JNIEnv *env, jobject this,
  * goes invisible
  */
 JNIEXPORT void JNICALL
-Java_org_rockbox_RockboxFramebuffer_surfaceDestroyed(JNIEnv *e, jobject this,
+Java_com_gaana_RockboxFramebuffer_surfaceDestroyed(JNIEnv *e, jobject this,
                                                     jobject surfaceholder)
 {
     (void)this; (void)surfaceholder;
@@ -159,6 +162,7 @@ Java_org_rockbox_RockboxFramebuffer_surfaceDestroyed(JNIEnv *e, jobject this,
     RockboxFramebuffer_instance = NULL;
     (*e)->DeleteGlobalRef(e, AndroidRect_class);
     AndroidRect_class = NULL;
+    connected=false;
 }
 
 bool lcd_active(void)

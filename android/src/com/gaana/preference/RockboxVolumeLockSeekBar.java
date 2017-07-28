@@ -1,6 +1,6 @@
-package org.rockbox.preference;
+package com.gaana.preference;
 
-import org.rockbox.RockboxApp;
+import com.gaana.RockboxApp;
 
 import android.content.Context;
 import android.content.SharedPreferences;

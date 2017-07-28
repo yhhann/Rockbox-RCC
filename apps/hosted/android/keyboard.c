@@ -36,7 +36,7 @@ static bool             accepted;
 static jstring          new_string;
 
 JNIEXPORT void JNICALL
-Java_org_rockbox_RockboxKeyboardInput_put_1result(JNIEnv *env, jobject this,
+Java_com_gaana_RockboxKeyboardInput_put_1result(JNIEnv *env, jobject this,
                                                   jboolean _accepted,
                                                   jstring _new_string)
 {
@@ -45,8 +45,7 @@ Java_org_rockbox_RockboxKeyboardInput_put_1result(JNIEnv *env, jobject this,
     accepted = (bool)_accepted;
     if (accepted)
     {
-        new_string = _new_string;
-        (*env)->NewGlobalRef(env, new_string); /* prevet GC'ing */
+        new_string = (*env)->NewGlobalRef(env, _new_string);
     }
     semaphore_release(&kbd_wakeup);
 }
@@ -60,7 +59,7 @@ static void kdb_init(void)
         semaphore_init(&kbd_wakeup, 1, 0);
         /* get the class and its constructor */
         RockboxKeyboardInput_class = e->FindClass(env_ptr,
-                                            "org/rockbox/RockboxKeyboardInput");
+                                            "com/gaana/RockboxKeyboardInput");
         jmethodID constructor = e->GetMethodID(env_ptr,
                                                RockboxKeyboardInput_class,
                                                "<init>", "()V");

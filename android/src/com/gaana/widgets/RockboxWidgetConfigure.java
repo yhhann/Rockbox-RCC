@@ -19,10 +19,10 @@
  *
  ****************************************************************************/
 
-package org.rockbox.widgets;
+package com.gaana.widgets;
 
-import org.rockbox.R;
-import org.rockbox.RockboxService;
+import com.gaana.R;
+import com.gaana.RockboxService;
 
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
@@ -87,7 +87,7 @@ public class RockboxWidgetConfigure extends Activity
 
             /* Ask for track information so that new widgets display properly
             * if rockbox was already playing */
-            context.startService(new Intent("org.rockbox.ResendTrackUpdateInfo",
+            context.startService(new Intent("com.gaana.ResendTrackUpdateInfo",
                                      Uri.EMPTY, context, RockboxService.class));
 
             Intent result = new Intent();
@@ -108,7 +108,7 @@ public class RockboxWidgetConfigure extends Activity
 
     static void saveWidgetPref(Context context, int appWidgetId, WidgetPref state)
     {
-        SharedPreferences.Editor prefs = context.getSharedPreferences("org.rockbox.RockboxWidgetConfigure", 0).edit();
+        SharedPreferences.Editor prefs = context.getSharedPreferences("com.gaana.RockboxWidgetConfigure", 0).edit();
         prefs.putBoolean("albumart"+appWidgetId, state.enableAA);
         prefs.putBoolean("prev"+appWidgetId, state.enablePrev);
         //prefs.putBoolean("stop"+appWidgetId, state.enableStop);
@@ -119,7 +119,7 @@ public class RockboxWidgetConfigure extends Activity
 
     static WidgetPref loadWidgetPref(Context context, int appWidgetId)
     {
-        SharedPreferences prefs = context.getSharedPreferences("org.rockbox.RockboxWidgetConfigure", 0);
+        SharedPreferences prefs = context.getSharedPreferences("com.gaana.RockboxWidgetConfigure", 0);
         WidgetPref state = new WidgetPref();
         state.enableAA   = prefs.getBoolean("albumart"+appWidgetId, true);
         state.enablePrev = prefs.getBoolean("prev"+appWidgetId, true);

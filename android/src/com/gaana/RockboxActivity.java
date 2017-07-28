@@ -19,10 +19,11 @@
  *
  ****************************************************************************/
 
-package org.rockbox;
+package com.gaana;
 
 
-import org.rockbox.Helper.Logger;
+import com.gaana.Helper.Logger;
+import com.gaana.jni.RockboxNativeInterface;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -134,11 +135,18 @@ public class RockboxActivity extends Activity
     {
         switch (item.getItemId())
         {
-           case 3:
-                System.runFinalization();
-		MobclickAgent.onKillProcess(this);
-                android.os.Process.killProcess(android.os.Process.myPid());
-                System.exit(0);
+            case 3:
+		        MobclickAgent.onKillProcess(this);
+		        RockboxNativeInterface.powerOff();
+		        new Thread("Power-Off"){
+		            @Override
+		            public void run(){
+			            try {
+                            Thread.sleep(3500); //确保退出
+                        } catch (InterruptedException ignored) { }
+		                android.os.Process.killProcess(android.os.Process.myPid());
+                    }
+		        }.start();
                 break;
             case 2:
                 new AlertDialog.Builder(this)
@@ -151,11 +159,7 @@ public class RockboxActivity extends Activity
                 RockboxFramebuffer.buttonHandler(0, true); //press
                 try {
                     Thread.sleep(400); //线程阻塞400ms，模拟长按菜单键（WPS_MENU），小于300ms即为WPS_CONTEXT。
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                    Logger.e("Thread blocked!");
-                    }
+                } catch (InterruptedException e) {}
                 RockboxFramebuffer.buttonHandler(0, false); //release
                 break;
             case 1:
@@ -180,6 +184,7 @@ public class RockboxActivity extends Activity
         super.onResume();
         RockboxAppSetting.releaseWakeLock();
         MobclickAgent.onResume(this);
+        setServiceActivity(true);
         setVisible(true);
         setServiceActivity(true);
     }
